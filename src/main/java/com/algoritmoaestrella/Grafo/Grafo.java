@@ -1,4 +1,4 @@
-package com.algoritmogreedy.Grafo;
+package com.algoritmoaestrella.Grafo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -116,10 +116,10 @@ public class Grafo<T> { //T = tipo de las aristas
         return listaRetorno;
     }
 
-    public int getDistanceBetween(T source, T end) {
-        for (Arista<T> edge : listaAdyacencia.get(source)) {
-            if (edge.getVertice() == end) {
-                return edge.getPeso();
+    public int getDistanciaEntre(T origen, T destino) {
+        for (Arista<T> arista : listaAdyacencia.get(origen)) {
+            if (arista.getVertice() == destino) {
+                return arista.getPeso();
             }
         }
         return Integer.MAX_VALUE; // (no existe conexion)

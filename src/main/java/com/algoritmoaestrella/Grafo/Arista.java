@@ -1,4 +1,4 @@
-package com.algoritmogreedy.Grafo;
+package com.algoritmoaestrella.Grafo;
 
 /**
  *
