@@ -21,76 +21,57 @@ public class TestAlgoritmoAEstrellaPI {
 
     private static int N = 20; // numero de ciudades de rumania
     static HashMap<NodoAStar, Integer> heuristicas = generarHeuristicas();
-    static NodoAStar fin = new NodoAStar("Origen");
+    static NodoAStar origen = new NodoAStar("S");
+    static NodoAStar fin = new NodoAStar("G");
 
     public static void main(String[] args) throws FileNotFoundException {
 
         Grafo g = null;
 
         g = generarGrafoPrueba();
-
         System.out.println(g + "\n///////////////////////////////////");
-        algoritmoAEstrella(g, heuristicas);
-
+        
+        NodoAStar resultado = algoritmoAEstrellaPI(g, origen);
+        if (resultado.equals(null)) {
+            System.out.println("No se encontró un camino óptimo al nodo objetivo determinado");
+            return;
+        }
+        caminoHastaNodo(resultado);
     }
 
     private static Grafo generarGrafoPrueba() {
         Grafo g = new Grafo(false);
-        ArrayList<String> listaV = new ArrayList<>();
-        listaV.add("Origen");
-        listaV.add("A");
-        listaV.add("B");
-        listaV.add("C");
-        listaV.add("D");
-        listaV.add("E");
-        listaV.add("F");
-        listaV.add("G");
-        listaV.add("H");
-        listaV.add("I");
-        listaV.add("J");
-        listaV.add("K");
-        listaV.add("L");
-        listaV.add("Destino");
+        ArrayList<NodoAStar> listaV = new ArrayList<>();
+        listaV.add(new NodoAStar<>("S"));
+        listaV.add(new NodoAStar<>("A"));
+        listaV.add(new NodoAStar<>("B"));
+        listaV.add(new NodoAStar<>("C"));
+        listaV.add(new NodoAStar<>("D"));
+        listaV.add(new NodoAStar<>("G"));
         g.add(listaV);
-
-        g.addArista("Origen", "A", 1);
-        g.addArista("Origen", "B", 1);
-        g.addArista("Origen", "C", 1);
-        g.addArista("A", "D", 1);
-        g.addArista("A", "E", 1);
-        g.addArista("A", "F", 3);
-        g.addArista("E", "Destino", 3);
-        g.addArista("B", "G", 4);
-        g.addArista("B", "H", 1);
-        g.addArista("B", "I", 2);
-        g.addArista("C", "L", 1);
-        g.addArista("C", "J", 1);
-        g.addArista("C", "K", 1);
-        g.addArista("G", "Destino", 3);
-        g.addArista("I", "Destino", 3);
-        g.addArista("K", "Destino", 2);
+        //S
+        g.addArista(listaV.get(0), listaV.get(1), 10);
+        g.addArista(listaV.get(0), listaV.get(2), 8);
+        g.addArista(listaV.get(0), listaV.get(3), 9);
+        //B
+        g.addArista(listaV.get(2), listaV.get(5), 5);
+        g.addArista(listaV.get(2), listaV.get(4), 4);
+        //D
+        g.addArista(listaV.get(4), listaV.get(1), 1);
+        //G
+        g.addArista(listaV.get(5), listaV.get(3), 5);
 
         return g;
-
     }
 
     private static HashMap<NodoAStar, Integer> generarHeuristicas() {
-        HashMap<String, Integer> heuristicas = new HashMap<>();
-        heuristicas.put("-", 0);
-        heuristicas.put("Origen", 0);
-        heuristicas.put("A", 3);
-        heuristicas.put("B", 2);
-        heuristicas.put("C", 3);
-        heuristicas.put("D", 3);
-        heuristicas.put("E", 1);
-        heuristicas.put("F", 3);
-        heuristicas.put("G", 2);
-        heuristicas.put("H", 1);
-        heuristicas.put("I", 2);
-        heuristicas.put("J", 3);
-        heuristicas.put("K", 2);
-        heuristicas.put("L", 3);
-        heuristicas.put("Destino", 2);
+        HashMap<NodoAStar, Integer> heuristicas = new HashMap<>();
+        heuristicas.put(new NodoAStar<>("S"), 0);
+        heuristicas.put(new NodoAStar<>("A"), 0);
+        heuristicas.put(new NodoAStar<>("B"), 4);
+        heuristicas.put(new NodoAStar<>("C"), 3);
+        heuristicas.put(new NodoAStar<>("D"), 0);
+        heuristicas.put(new NodoAStar<>("G"), 0);
         return heuristicas;
     }
 
@@ -128,7 +109,7 @@ public class TestAlgoritmoAEstrellaPI {
     public static int busquedaLimitada(Grafo g, ArrayList<NodoAStar> camino, int costoCamino, int cota_f) {
         NodoAStar actual = camino.get(camino.size() - 1);
         // calcular valores del nodo actual H, G y F
-        actual.setValorH(heuristicas.get(actual.getEstado()));
+        actual.setValorH(heuristicas.get(actual));
         actual.setValorG(costoCamino);
         actual.setValorF(costoCamino + actual.getValorH());
 
@@ -145,6 +126,8 @@ public class TestAlgoritmoAEstrellaPI {
         List<NodoAStar> vecinos = g.getVerticesAdyacentes(actual);
         for (NodoAStar vecino : vecinos) {
             if (!camino.contains(vecino)) {
+                // añadir el padre a los vecinos
+                vecino.setPadre(actual);
                 // si el camino no contiene al vértice vecino, se exploran los caminos de este nodo
                 camino.add(vecino);
                 int min_cota_f_limite = busquedaLimitada(g, camino,
@@ -162,4 +145,14 @@ public class TestAlgoritmoAEstrellaPI {
         return min_cota_f;
     }
 
+    private static void caminoHastaNodo(NodoAStar resultado) {
+        List<NodoAStar> caminoFinal = new ArrayList<>();
+        NodoAStar actual = resultado;
+        System.out.println("CAMINO HASTA: " + resultado);
+        do {
+            caminoFinal.add(actual);
+            actual = actual.getPadre();
+        }while(actual != null);
+        System.out.println(caminoFinal);
+    }
 }
