@@ -72,6 +72,7 @@ public class TestAlgoritmoAEstrella {
 
     private static HashMap<String, Integer> generarHeuristicas() {
         HashMap<String, Integer> heuristicas = new HashMap<>();
+        heuristicas.put("-", 0);
         heuristicas.put("Origen", 0);
         heuristicas.put("A", 3);
         heuristicas.put("B", 2);
@@ -91,6 +92,7 @@ public class TestAlgoritmoAEstrella {
 
     public static void algoritmoAEstrella(Grafo g, String origen, String fin, HashMap<String, Integer> heuristicas) {
         ArrayList<Pair<String, String>> listaVisitados = new ArrayList<>();
+        HashMap<String, String> listaAnt = new HashMap<>();
         Comparator<Pair<String, Integer>> comparadorNodos
             = (Pair<String, Integer> s1, Pair<String, Integer> s2) -> s1.getValue() - s2.getValue();
         PriorityQueue<Pair<String, Integer>> listaPorExplorar = new PriorityQueue<>(comparadorNodos);
@@ -104,19 +106,29 @@ public class TestAlgoritmoAEstrella {
             //costoRutaActual += heuristicas.get(actual);
             for (String vecino : vecinos) {
                 if (!existeVisitado(listaVisitados, vecino)) {
-                    listaPorExplorar.add(new Pair<>(vecino, actual.getValue() + heuristicas.get(vecino)));
+                    listaAnt.put(vecino, actual.getKey());
+                    listaPorExplorar.add(new Pair<>(vecino, -heuristicas.get(actual.getKey()) + actual.getValue() + heuristicas.get(vecino) + g.getDistanciaEntre(actual.getKey(), vecino)));
                 }
             }
-
+            if (!actual.getKey().equals("Origen")) {
+                listaVisitados.add(new Pair<>(actual.getKey(), listaAnt.get(actual.getKey())));
+            }
             Pair<String, Integer> min = listaPorExplorar.poll();
             if (actual.getKey().equals(fin)) {
-                for (int i = listaVisitados.size()-1; i >=0 && listaVisitados.get(i).ge; i--) {
-                    
+                List<String> caminoResultante = new ArrayList<>();
+                caminoResultante.add(listaVisitados.get(listaVisitados.size() - 1).getKey()); //este nodo es siempre el fin
+                for (int i = listaVisitados.size() - 1; i >= 0; i--) {
+                    caminoResultante.add(listaVisitados.get(i).getValue());
+                    if (listaVisitados.get(i).getValue().equals("Origen")) {
+                        break;
+                    }
                 }
                 System.out.println("\nFIN DEL RECORRIDO CON EXITO\n");
+                System.out.println(caminoResultante);
+                System.out.println(listaVisitados);
                 break;
             }
-            listaVisitados.add(new Pair<>(min.getKey(), actual.getKey()));
+            //listaVisitados.add(new Pair<>(min.getKey(), actual.getKey()));
             actual = min;
         }
 

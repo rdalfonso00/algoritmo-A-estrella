@@ -5,7 +5,7 @@ package com.algoritmoaestrella.Grafo;
  * @author poncho
  */
 public class Arista<T> {
-    private T vertice;
+    private T vertice, padre;
     private int peso;
 //en caso de haber peso, se usaría 
     public Arista(T vertice, int peso){
